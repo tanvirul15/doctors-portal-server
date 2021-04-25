@@ -2,15 +2,22 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const MongoClient = require("mongodb").MongoClient;
+const fileUpload = require('express-fileupload');
 require("dotenv").config();
+
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.dl4gc.mongodb.net/doctorsPortal?retryWrites=true&w=majority`;
 
 const app = express();
+
 app.use(bodyParser.json());
 app.use(cors());
+app.use(express.static("doctors"))
+app.use(fileUpload())
 const port = 5000;
 
 app.get("/", (req, res) => {
+	
   res.send("hello from db it's working working");
 });
 
@@ -36,6 +43,15 @@ client.connect((err) => {
     appointmentCollection.find({ date }).toArray((err, data) => {
       res.send(data);
     });
+  });
+  app.post("/addDoctor",(req,res)=>{
+	  const portfolio=req.files.file;
+	  const name=req.body.name;
+	  const email=req.body.email;
+	  console.log(name);
+	  console.log(email);
+	  portfolio.mv(`${__dirname}/doctors/${portfolio.name}`,(err)=>res.send(err))
+	 
   });
 
   //   app.get("/appointments", (req, res) => {
